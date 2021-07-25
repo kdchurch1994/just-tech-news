@@ -48,20 +48,43 @@ router.post('/', (req, res) => {
         });
 });
 
+router.post('/login', (req, res) => { // We queried the user table using the findOne() method for the email entered by the user and assigned it to req.body.email
+    User.findOne({                    // If the user with that email was not found in the database, the next step will be to verify the user's iedntity by matching the password from the user and the hashed password in the database. 
+        where: {                      // This will be done in the Promise of the query. The .findOne() Sequelize method looks for a user with the specified email. The result of the query is passed as dbUserData to the .then() part of the .findOne() method. 
+            email: req.body.email     // If the query result is successful (i.e., not empty), we can call .checkPassword(), which will be on the dbUserData object. We will need to pass the plaintext password, which is stored in req.body.password, into .checkPassword() as the argument.
+        }
+    }) .then (dbUserData => {
+        if (!dbUserData) {
+            res.status(400).json({ message: 'No user with that email address!' });
+            return;
+        }
+        // Verify user
+
+        const validPassword = dbUserData.checkPassword(req.body.password); // The .compareSync() method, which is inside the .checkPassword() method in the User5.js model, can then confirm or deny that the supplied password matches the hashed password stored on the object.
+                                                                           // .checkPassword() will then return true on success or false on failure. We stored that boolean value to the variable validPassword.
+        if (!validPassword) {                                              // Note that the instance method was called on the user retrieved from the database, dbUserData. Because the instance method returns a Boolean, we can use it in a conditional statement to verify whether the user has been verified or not. 
+            res.status(400).json({ message: 'Incorrect password!' });      // In the conditional statement, if the match returns a false value, an error message is sent back to the client, and the return statmenet exits out of the function immediately. 
+            return;                                                        // If there is a match, the conditional statement block is ignored, and a response with the data and the message "You are now logged in." is sent instead.      
+        }
+
+        res.json({ user: dbUserData, message: 'You are now logged in!' });
+    });
+});
+
 // PUT /api/users/1 (Allows us to update the user's info based on the id of that user)
 router.put('/:id', (req, res) => {
     // if req.body has exact key/value pairs to match the model, you can just use `req.body` instead
     User.update(req.body, {
+        indvidualHooks: true,
         where: {
             id: req.params.id
         }
     })
         .then(dbUserData => {
-            if (!dbUserData[0]) {
+            if (!dbUserData) {
                 res.status(404).json({ message: 'No user found with this id'});
                 return;
             }
-            res.json(dbUserData);
         })
         .catch(err => {
             console.log(err);

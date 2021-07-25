@@ -3,7 +3,12 @@ const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
 
 // create our User model
-class User extends Model {}
+class User extends Model {
+    // set up method to run on instance data (per user) to check password
+    checkPassword(loginPw) {
+        return bcrypt.compareSync(loginPw, this.password); //Using the keyword this, we can access this user's properties, including the password,
+    }                                                      // which was stored as a hashed string. 
+}
 
 // define table columns and configuration
 User.init(
@@ -55,17 +60,21 @@ User.init(
             async beforeCreate(newUserData) { // The async keyword is used as a prefix to the function that contains the asynchronous function. 
                 newUserData.password = await bcrypt.hash(newUserData.password, 10); // await can be used to prefix the async function, which will then gracefully assign the value from the response to the newUserData's password property.
                 return newUserData; //The newUserData is then returned to the application with the hashed password.
+            },
+            // set up beforeUpdate lifecycle "hook" functionality
+            async beforeUpdate(updatedUserData) {
+                updatedUserData.password = await bcrypt.hash(updatedUserData.password, 10);
+                return updatedUserData;
             }
-        }
-    },
-    {
+        },
         // TABLE CONFIGURATION OPTIONS GO HERE (https://sequelize.org/v5/manual/models-definition.html#configuration))
         sequelize, // pass in our imported sequelize connection (the direct connection to our database)
         timestamps: false, // don't automatically create createdAt/updatedAt timestamp fields
         freezeTableName: true, // don't pluralize name of database table
         underscored: true, // use underscores instead of camel-casing (i.e. `comment_text` and not `commentText`)
         modelName: 'user' // make it so our model name stays lowercase in the database
-    }
+        
+    }    
 );
 
 module.exports = User;
