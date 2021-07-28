@@ -112,4 +112,4 @@ router.delete('/:id', (req, res) => {
         });
 });
 
-module.exports = router; 
+module.exports = router; //Make sure to update index.js file in the api folder

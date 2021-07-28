@@ -19,12 +19,28 @@ Compare the Hashed Password
          We now know how to verify a user's password by comparing the plaintext and the hashed password version, but how do we incorporate this?
          We'll need an instance method. What is an instance method?
          In Object Oriented Programming, an instance method returns or makes use of inforamtion (i.e., properties) specific to that 
-         particular object. (Remember that obhects generated from classes are instances of the class.)
+         particular object. (Remember that objects generated from classes are instances of the class.)
          So, we should create an instance method on the User model definition to access the password property of each user instance. 
          To do this, let's modify the User model in the User.js file to include an instance method called checkPassword
          that takes in the plaintext password retrieved from the client request at req.body.email and compares that with the hashed password. 
          This method will include the compareSynce function from bcrypt. Refer to User.js comment next to the instance for more detail
 
-         
+Create API Routes for the Post model
+*   Why did we include the User model for the post-routes?
+    In a query to the post table, we would like to retrieve not only information about each post, but also the user that posted it. 
+    WIth the foriegn key, user_id, we can form a JOIN, an essential characteristic of the relational data model.
 
+*   Why do we get created_at and username columns in this query since they are not in the Post model?
+    The created_at column is auto-generated at the time a post is created with the current date and time, thanks to Sequelize.
+    We do not need to specify this column or the updated_at colum in the model definition, because Seuqelize will timestamp these fields by default unless we configure Sequelize not to.
 
+*   In the Promise, we included an error message in case the id wasn't found. The 404 status message relays what error type to the client?
+    The 404 status code identifies a ser error and will need a different request for a successful response. 
+
+*   Do you notice any key distinctions between the request made above and the SQL INSERT_INTO query that we made in the MYSQL shell?
+    We did not assign the created_at or updated_at fields in the req.body. 
+    Can you reason why this is the case?
+    In the SQL sheel when we made our first seed, we were making a query directly to the MYSQL database. Therefore if any constraints on any field are not fullfilled, an error will occur.
+        Remember, the created_at and updated_at constrains stated that these fields cannot be empty or NOT NULL.
+        Then why does this contraint error not occur in the request made through Insomnia Core?
+        This is because of what Sequelize does for our application under the hood. The values for these fields are assigned automatically with CURRENT_TIMESTAMP values, which allows us to not include it on the request. 

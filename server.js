@@ -12,6 +12,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(routes);
 
 // Turn on connection to db and server
-sequelize.sync({ force: false }).then(() => {
-    app.listen(PORT, () => console.log('Now listening'));
-});
+sequelize.sync({ force: false }).then(() => {               //If sequelize.sync force is set to false, then the tables are not dropped and recreated if there are association changes. 
+    app.listen(PORT, () => console.log('Now listening'));  //By setting it to true, we will make the tables re-create if there are any association changes. This will also result in the tables being constantly dropped everytime and recreated, which can be annoying. 
+});                                                        //It is best to set this to false when deploying the site. 
