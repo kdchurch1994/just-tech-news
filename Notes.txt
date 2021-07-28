@@ -44,3 +44,16 @@ Create API Routes for the Post model
         Remember, the created_at and updated_at constrains stated that these fields cannot be empty or NOT NULL.
         Then why does this contraint error not occur in the request made through Insomnia Core?
         This is because of what Sequelize does for our application under the hood. The values for these fields are assigned automatically with CURRENT_TIMESTAMP values, which allows us to not include it on the request. 
+
+Create the Vote model
+*   The relationships between data is integral to databases.
+    Using Sequelize, we just created a one-to-many relationship that connects the User and Post models, in which users can create many posts and posts belong to a singe user. 
+        In one-to-many relationships like this, the owned data entity (i.e., the post that a user creates) holds a reference to its owner. 
+        The owner holds no reference to the data it owns, to prevent unnecessary duplication.
+    But now we wnat to allow many users to vote on many posts, creating a many-to-many relationship. 
+        In this relationship, each side must hold a reference to its counterpart, as they each share ownership in a vote. 
+        So we need to create a third table, for the sole purpose of connecting the data between two other tables with their primary keys.
+        This is known as a through table. 
+Create PUT Route for Voting on Post
+*   Because we'll be creating votes using the vote model, make sure it's imported into this file with the other preceding models
+*   Like earlier, once you turn on the server with sequelize.sync({ force:true }) and confirm the database tables were recreated, switch back to using { force: false } and restart the server one more time just to make sure the changes took hold and you don't accidentally remove data!
