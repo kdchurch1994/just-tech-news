@@ -1,0 +1,59 @@
+Reason for using a POST method as opposed to a GET method for the login route
+*   A GET method carries the request parameter appended in the URL string, whereas a POST method carries the request parameter in req.body, 
+    which makes it a more secure way of transferring data from the client to the server. 
+
+Compare the Hashed Password
+*   We will want to use bcrypt again to compare a plaintext password to its encrypted form.
+    The bcrypt package offers an async method called compare that takes in two parameters: the plaintext password from the user
+    and the the hashed password from the database. Then the function compares them. 
+    If they match, true is returned. If they don't, false is returned. 
+
+    The bcrypt package also offers a sync version, .compareSync(), that operates on the same principles. 
+    Why is async mode recommended over sync mode?
+         If you are using bcrypt on a simple script, using the sync mode is perfectly fine. 
+         However, if you are using bcrypt on a server, the async mode is recommended. 
+         This is because the hashing done by bcrypt is CPU intensive, 
+         so the sync version will block the event loop and prevent your application from servicing any other inbound requests or events. 
+         The async version uses a thread pool which does not block the main event loop.
+         Async is better for user experience, but in this application we used sync for faster testing
+         We now know how to verify a user's password by comparing the plaintext and the hashed password version, but how do we incorporate this?
+         We'll need an instance method. What is an instance method?
+         In Object Oriented Programming, an instance method returns or makes use of inforamtion (i.e., properties) specific to that 
+         particular object. (Remember that objects generated from classes are instances of the class.)
+         So, we should create an instance method on the User model definition to access the password property of each user instance. 
+         To do this, let's modify the User model in the User.js file to include an instance method called checkPassword
+         that takes in the plaintext password retrieved from the client request at req.body.email and compares that with the hashed password. 
+         This method will include the compareSynce function from bcrypt. Refer to User.js comment next to the instance for more detail
+
+Create API Routes for the Post model
+*   Why did we include the User model for the post-routes?
+    In a query to the post table, we would like to retrieve not only information about each post, but also the user that posted it. 
+    WIth the foriegn key, user_id, we can form a JOIN, an essential characteristic of the relational data model.
+
+*   Why do we get created_at and username columns in this query since they are not in the Post model?
+    The created_at column is auto-generated at the time a post is created with the current date and time, thanks to Sequelize.
+    We do not need to specify this column or the updated_at colum in the model definition, because Seuqelize will timestamp these fields by default unless we configure Sequelize not to.
+
+*   In the Promise, we included an error message in case the id wasn't found. The 404 status message relays what error type to the client?
+    The 404 status code identifies a ser error and will need a different request for a successful response. 
+
+*   Do you notice any key distinctions between the request made above and the SQL INSERT_INTO query that we made in the MYSQL shell?
+    We did not assign the created_at or updated_at fields in the req.body. 
+    Can you reason why this is the case?
+    In the SQL sheel when we made our first seed, we were making a query directly to the MYSQL database. Therefore if any constraints on any field are not fullfilled, an error will occur.
+        Remember, the created_at and updated_at constrains stated that these fields cannot be empty or NOT NULL.
+        Then why does this contraint error not occur in the request made through Insomnia Core?
+        This is because of what Sequelize does for our application under the hood. The values for these fields are assigned automatically with CURRENT_TIMESTAMP values, which allows us to not include it on the request. 
+
+Create the Vote model
+*   The relationships between data is integral to databases.
+    Using Sequelize, we just created a one-to-many relationship that connects the User and Post models, in which users can create many posts and posts belong to a singe user. 
+        In one-to-many relationships like this, the owned data entity (i.e., the post that a user creates) holds a reference to its owner. 
+        The owner holds no reference to the data it owns, to prevent unnecessary duplication.
+    But now we wnat to allow many users to vote on many posts, creating a many-to-many relationship. 
+        In this relationship, each side must hold a reference to its counterpart, as they each share ownership in a vote. 
+        So we need to create a third table, for the sole purpose of connecting the data between two other tables with their primary keys.
+        This is known as a through table. 
+Create PUT Route for Voting on Post
+*   Because we'll be creating votes using the vote model, make sure it's imported into this file with the other preceding models
+*   Like earlier, once you turn on the server with sequelize.sync({ force:true }) and confirm the database tables were recreated, switch back to using { force: false } and restart the server one more time just to make sure the changes took hold and you don't accidentally remove data!
