@@ -5,22 +5,24 @@ const { User } = require('../../models'); // Imports User from the User.js model
 router.get('/', (req, res) => {
     // Access our User model and run .findAll() method)
     User.findAll({ // Allows us to query all of the users from the user table in the database (equivalent to `SELECT * FROM users;`)
-        attributes: { exclude: ['password']}
+        attributes: { exclude: ['password'] } 
     })
         .then(dbUserData => res.json(dbUserData)) // After selecing all of the users from the database it responds with the data as JSON
         .catch(err => {
             console.log(err);
             res.status(500).json(err);
         });
-});
+}); //The User model inherites functionality from the Sequelize Model class. .findAll() is one of the Model class's methods. The .findAll() method lets us query all of the users from the user table in the database,
+// and is the JavaScript equivalent to the following SQL query: SELECT * FROM users;
+//Remember that Sequilize is a JavaScript Promise-based library, meaning we get to use .then() with all of the model methods!
 
 // GET /api/users/1 (Get user info for one user based on the id. The /1 provides a route to the user with the id of 1, whereas /99 provides a route to the user with the id of 99)
 router.get('/:id', (req, res) => {
     User.findOne({
-        attributes: { exclude: ['password'] },
+        attributes: { exclude: ['password'] }, //Excludes password from being displayed when requesting data.
         where: {
-            id: req.params.id
-        }
+            id: req.params.id 
+        } //We are using the where option to indicate we want to find a user where its id value equals whatever req.params.id is, much like the following SQL query: SELECT * FROM users WHERE id = 1
     })
         .then(dbUserData => {
             if (!dbUserData) {
@@ -35,12 +37,12 @@ router.get('/:id', (req, res) => {
 });
 
 // POST /api/users (Allows us to create a user and add that user to the database)
-router.post('/', (req, res) => {
+router.post('/', (req, res) => { //To insert data, we can use Sequelize's .create() method. Pass in key/value pairs where the keys are what we defined in the User model and the values are what we get from req.body
     User.create({
         username: req.body.username,
         email: req.body.email,
         password: req.body.password
-    })
+    }) //In SQL, the command would look like the following code: INSERT INTO users (username, email, password) VALUES ("Lernantino", "lernantino@gmail.com", "password1234");
         .then(dbUserData => res.json(dbUserData))
         .catch(err => {
             console.log(err);
@@ -78,8 +80,9 @@ router.put('/:id', (req, res) => {
         indvidualHooks: true,
         where: {
             id: req.params.id
-        }
-    })
+        } //To update existing data, use both req.body and req.params. This .update() method combines the parameters for creating data and looking up data. 
+    })    //We pass in req.body to provide the new data we want to use in the update and req.params.id to indicate where exactly we want that new data to be used. 
+          //The associated SQL syntax would look like the following code: UPDATE users SET username = 'username', email = email@email.com, password = "password" WHERE id = 1;
         .then(dbUserData => {
             if (!dbUserData) {
                 res.status(404).json({ message: 'No user found with this id'});
@@ -93,7 +96,7 @@ router.put('/:id', (req, res) => {
 });
 
 // DELETE /api/users/1 (Allows us to delete a user based on their id)
-router.delete('/:id', (req, res) => {
+router.delete('/:id', (req, res) => { //To delete data, use the .destroy() method and provide some type of identifier to indicate where exactly we would like to delete data from the user database table.
     User.destroy({
         where: {
             id: req.params.id

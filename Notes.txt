@@ -1,3 +1,20 @@
+Create API Routes for the User model
+*   What does CRUD stand for?
+    Create, read, update, and delete
+
+*   We're using an Express.js router again to help us keep the routes organized. We are even using the four main methods for an API: GET, POST, PUT, and DELETE.
+    These endpoints for the server are going to be accessible at the /api/users URL. This naming convention along with the use of the HTTP methods follow a famous API architectural pattern called REST, 
+    or Representational State Transfer. APIs built following this pattern are what's known as RESTful APIs.
+    There are a number of guidelines that go into creating the RESTFUL API, and many are quite abstract and take time to truly grasp. Still, there are three guidelines we can put to use:
+        1. Name your endpoints in a way that describes the data you're interfacing with, such as /api/users.
+        2. Use HTTP methods like GET, POST, PUT< and DELETE to describe the action you're performing to interface with that endpoint; for example, GET /api/users means you should expect to receive user data. 
+        3. Use the proper HTTP status codes like 400, 404, and 500 to indicate errors in a request.
+
+*   Note that Sequelize's offering are twofold. For us, the developers, we get to use object-oriented principles to model and manipulate the data. 
+    This makes our lives easier as these actions and concepts are more geared toward a language like JavaScript. This is the side we get to interface with. 
+    The other side of this is that after we interface with Sequelize, the library interprets our request to it and goes ahead to convey the request to the database and return to us with a response. 
+        This means we don't have to directly work with the SQL database, for the most part. 
+
 Reason for using a POST method as opposed to a GET method for the login route
 *   A GET method carries the request parameter appended in the URL string, whereas a POST method carries the request parameter in req.body, 
     which makes it a more secure way of transferring data from the client to the server. 
