@@ -82,3 +82,40 @@ Refactor Messy Code 13.4.6
         Luckily, we do in fact have our own complicated query!
             We had to combine Vote.creae() with Post.findOne() previously so that we could vote on a post and then see that post's updated data in return. 
                 Let's create a Sequelize model method to replace the busy code we have in that PUT Route 13.4.6
+
+Deploy to Heroku 13.5.6
+*   To get started with Heroku, simply run the following commands from within your project directory:
+        heroku create <name of website>
+        git push heroku main
+
+*   The code "const PORT = process.envPORT || 3001;" allows us to use Heroku's process.env.PORT value when deployed and 3001 when run locally. This line of code belongs in server.js
+        Having a dynamic port number is important, because it is very unlikely that the port number you hardcode (e.g, 3001) would be the port Heroku runs you app on. 
+
+*   Look at the following code on the connection.js page:
+        const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PW, {
+        host: 'localhost',
+        dialect: 'mysql',
+        port: 3306
+        });
+    As of now, this will only work with your local database. Could you continue using your local database even on Heroku?
+        Well, yes, but then you would have to make your ports public and always leave your computer on. 
+        Instead, we should make a new remote database on Herou and tell the app to connect to that one when deployed but still use the local database when run locally. 
+            Fortunately, Heroku comes with a variety of add-ons that make setting up a remote database relatively easy. The one we'll use for MySQL is called JawsDB. 
+                When using Heroku add-ons, Heroku will require you to put a credit card on file. Heroku will not charge you, though, unless you specifically upgrade to one of their paid services. 
+                Refer to 13.5.6 to learn how to change the database in Heroku
+
+    Change the code on connection.js to the following:
+        let sequelize;
+
+        if (process.env.JAWSDB_URL) {
+            sequelize = new Sequelize(process.env.JAWSDB_URL);
+        } else {
+            sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PW, {
+                host: 'localhost',
+                dialect: 'mysql',
+                port: 3306
+            });
+        }
+
+        When the app is deployed, it will have access to Heroku's process.env.JAWSDB_URL variable and use that value to connect. 
+        Otherwise, it will continue to use the localhost configuration. 
