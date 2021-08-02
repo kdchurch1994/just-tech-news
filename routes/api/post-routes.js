@@ -1,9 +1,9 @@
 const router = require('express').Router();
 const sequelize = require('../../config/connection');
-const { Post, User, Vote } = require('../../models'); //*Refer to Notes.txt to learn more
+const { Post, User, Vote, Comment } = require('../../models'); //*Refer to Notes.txt to learn more
 //Route that will retrieve all posts in the database. (Use findAll)
-router.get('/', (req, res) => {
-    console.log('======================');
+router.get('/', (req, res) => {  //When using this route, the SQL output looks as follows: SELECT `post`.`id`, `post`.`post_url`, `post`.`title`, `post`.`created_at`, (SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id) AS `vote_count`, `comments`.`id` AS `comments.id`, `comments`.`comment_text` AS `comments.comment_text`, `comments`.`post_id` AS `comments.post_id`, `comments`.`user_id` AS `comments.user_id`, `comments`.`created_at` AS `comments.created_at`, `comments->user`.`id` AS `comments.user.id`, `comments->user`.`username` AS `comments.user.username`, `user`.`id` AS `user.id`, `user`.`username` AS `user.username` FROM `post` AS `post` LEFT OUTER JOIN `comment` AS `comments` ON `post`.`id` = `comments`.`post_id` LEFT OUTER JOIN `user` AS `comments->user` ON `comments`.`user_id` = `comments->user`.`id` LEFT OUTER JOIN `user` AS `user` ON `post`.`user_id` = `user`.`id` ORDER BY `post`.`created_at` DESC;
+    console.log('======================'); //As you can see, the three include properties translated into three LEFT OUTER JOIN statements. One joins post with comment, another post with user, and then comment with user. 
     Post.findAll({
         attributes: [
             'id', 
@@ -14,7 +14,16 @@ router.get('/', (req, res) => {
             //Sequelize provides us with a special method called .lieral() that allows us to run regular SQL queries from within the Sequelize method-based queries. So when we vote on a post, we'll see that post - and its updated vote total - in the response. 
         ], //customizing the attributes to include the columns we want from the post table.  
         order: [['created_at', 'DESC']], //ensures that the latest articles are shown first to the client.                                                        
-        include: [  //creates a JOIN to the User table, which is done by adding the proptery include. Notice that the include property is expressed as an array of objects.
+        include: [ //Creates a JOIN to the Comment table
+            {
+                model: Comment,
+                attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+                include: {
+                    model: User,
+                    attributes: ['username']
+                }
+            },
+            //creates a JOIN to the User table, which is done by adding the proptery include. Notice that the include property is expressed as an array of objects.
             {       //To define this object, we need a reference to the model and attributes. 
                 model: User,
                 attributes: ['username']
@@ -44,6 +53,14 @@ router.get('/:id', (req, res) => {
             //Sequelize provides us with a special method called .lieral() that allows us to run regular SQL queries from within the Sequelize method-based queries. So when we vote on a post, we'll see that post - and its updated vote total - in the response. 
         ],
         include: [
+            {
+                model: Comment,
+                attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+                include: {
+                    model: User,
+                    attributes: ['username']
+                }
+            },
             {
                 model: User,
                 attributes: ['username']

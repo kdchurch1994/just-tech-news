@@ -29,6 +29,14 @@ router.get('/:id', (req, res) => {
                 attributes: ['id', 'title', 'post_url', 'created_at']
             },
             {
+                model: Comment,
+                attributes: ['id', 'comment_text','created_at'],
+                include: {
+                    model: Post, //including Post to see what post the user commented on.
+                    attributes: ['title']
+                }
+            },
+            {
                 model: Post, 
                 attributes: ['title'],
                 through: Vote, 
@@ -66,7 +74,7 @@ router.post('/login', (req, res) => { // We queried the user table using the fin
     User.findOne({                    // If the user with that email was not found in the database, the next step will be to verify the user's iedntity by matching the password from the user and the hashed password in the database. 
         where: {                      // This will be done in the Promise of the query. The .findOne() Sequelize method looks for a user with the specified email. The result of the query is passed as dbUserData to the .then() part of the .findOne() method. 
             email: req.body.email     // If the query result is successful (i.e., not empty), we can call .checkPassword(), which will be on the dbUserData object. We will need to pass the plaintext password, which is stored in req.body.password, into .checkPassword() as the argument.
-        }
+        },
     }) .then (dbUserData => {
         if (!dbUserData) {
             res.status(400).json({ message: 'No user with that email address!' });

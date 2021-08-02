@@ -1,6 +1,7 @@
 const User = require("./User");
 const Post = require("./Post")
 const Vote = require("./Vote");
+const Comment = require("./Comment");
 
 
 
@@ -19,7 +20,7 @@ User.belongsToMany(Post, {      //With these two .belongsToMany() methods in pla
     foreignKey: 'user_id'       //Notice the syntax. We instruc the application that the User and Post models will be connected, but in this case through the Vote model.
 });                             //We state what we want the foreign key to be in Vote, which aligns with the fields we set up in the model.
                                 //We also stipulate that the name of the Vote model should be displayed as voted_posts, when queired on, making it a litte more informative. 
-Post.belongsToMany(User, {      //Frthermore, the Vote table needs a row of data to be a unique pairing so that it knows which data to pull in when queried on.
+Post.belongsToMany(User, {      //Furthermore, the Vote table needs a row of data to be a unique pairing so that it knows which data to pull in when queried on.
     through: Vote,              //So because the user_id and post_id pairing must be unique, we're protected from the possibility of a suingle user voting on one post multiple times. 
     as: 'voted_posts',          //This layer of protection is called a foreign key constraint. 
     foreignKey: 'post_id"'
@@ -41,4 +42,20 @@ Post.hasMany(Vote, {
     foreignKey: 'post_id'
 });
 
-module.exports = { User, Post, Vote };
+Comment.belongsTo(User, {
+    foreignKey: 'user_id'
+});
+
+Comment.belongsTo(Post, {
+    foreignKey: 'post_id'
+});
+
+User.hasMany(Comment, {
+    foreignKey: 'user_id'
+});
+
+Post.hasMany(Comment, {
+    foreignKey: 'post_id'
+});
+
+module.exports = { User, Post, Vote, Comment };
