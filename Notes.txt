@@ -119,3 +119,5 @@ Deploy to Heroku 13.5.6
 
         When the app is deployed, it will have access to Heroku's process.env.JAWSDB_URL variable and use that value to connect. 
         Otherwise, it will continue to use the localhost configuration. 
+
+https://dashboard.heroku.com/apps/just-tech-news-example2
