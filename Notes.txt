@@ -71,6 +71,14 @@ Create the Vote model
         In this relationship, each side must hold a reference to its counterpart, as they each share ownership in a vote. 
         So we need to create a third table, for the sole purpose of connecting the data between two other tables with their primary keys.
         This is known as a through table. 
+
 Create PUT Route for Voting on Post
-*   Because we'll be creating votes using the vote model, make sure it's imported into this file with the other preceding models
+*   Because we'll be creating votes using the vote model, make sure it's imported into this file with the other preceding models.
 *   Like earlier, once you turn on the server with sequelize.sync({ force:true }) and confirm the database tables were recreated, switch back to using { force: false } and restart the server one more time just to make sure the changes took hold and you don't accidentally remove data!
+
+Refactor Messy Code 13.4.6
+*   Previously, we learned about Sequelize's idea of instance methods, which allow us to package up the returned data we've queried from Sequelize with custom methods. In this case, we set it up so that a user can check if their password is correct for a login system.
+    But Sequelize alos offers something called model methods. Let's say we've written a complicated query with Sequelize that involved the combination of a few other Sequelize methods. Sequelize model methods allow us to give that complicated set of functionality its own name. 
+        Luckily, we do in fact have our own complicated query!
+            We had to combine Vote.creae() with Post.findOne() previously so that we could vote on a post and then see that post's updated data in return. 
+                Let's create a Sequelize model method to replace the busy code we have in that PUT Route 13.4.6

@@ -3,9 +3,9 @@ const sequelize = require('../config/connection');
 
 // Create our Post model
 class Post extends Model {
-    static upvote(body, models) {
-        return models.Vote.create({
-            user_id: body.user_id,
+    static upvote(body, models) { //Here we're using JavaScript's built-in static keyword to indicate that the upvote method is one that's based on the Post model and not an instance method like we used earlier with the User model.
+        return models.Vote.create({ //This exemplifies Sequelize's heavy usage of object-oriented principles and concepts. We can now execute Post.upvote() as if it were one of Sequelize's other built-in methods. 
+            user_id: body.user_id, //With this upvote method, we'll pass in the value of req.body (as body) and an object of the models (as models) as parameters. 
             post_id: body.post_id
         }).then(() => {
             return Post.findOne({

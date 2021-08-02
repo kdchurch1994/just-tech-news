@@ -1,5 +1,5 @@
 const router = require('express').Router(); // Imports the Express.js router functionality
-const { User } = require('../../models'); // Imports User from the User.js model
+const { User, Post, Vote } = require('../../models'); // Imports User from the User.js model
 
 // GET /api/users (Gets all info from the users table)
 router.get('/', (req, res) => {
@@ -22,8 +22,20 @@ router.get('/:id', (req, res) => {
         attributes: { exclude: ['password'] }, //Excludes password from being displayed when requesting data.
         where: {
             id: req.params.id 
-        } //We are using the where option to indicate we want to find a user where its id value equals whatever req.params.id is, much like the following SQL query: SELECT * FROM users WHERE id = 1
-    })
+        }, //We are using the where option to indicate we want to find a user where its id value equals whatever req.params.id is, much like the following SQL query: SELECT * FROM users WHERE id = 1
+        include: [
+            {
+                model: Post, 
+                attributes: ['id', 'title', 'post_url', 'created_at']
+            },
+            {
+                model: Post, 
+                attributes: ['title'],
+                through: Vote, 
+                as: 'voted_posts'
+            } //When we query a single user, we'll recieve the title information of every post they've ever voted on. This would be handy for buidling a font end with a user profile page, as it'll allow us to proivde more information for that user. 
+        ]     //Notice how we had to make this happen though. We had to include the Post model, as we did before; but this time we had to contextualize it by going through the Vote table. 
+    })        //Now when we query a user, we can see which posts a user has created and which posts a user has voted on, which will come under the property name voted_posts, so that we know which set of data is which.
         .then(dbUserData => {
             if (!dbUserData) {
                 res.status(404).json({ message: 'No user found with this id' });

@@ -10,7 +10,8 @@ router.get('/', (req, res) => {
             'post_url', 
             'title', 
             'created_at'
-            [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+            [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count'] //Instead of trying to predict and build a method for every possible use developers have for SQL databases, 
+            //Sequelize provides us with a special method called .lieral() that allows us to run regular SQL queries from within the Sequelize method-based queries. So when we vote on a post, we'll see that post - and its updated vote total - in the response. 
         ], //customizing the attributes to include the columns we want from the post table.  
         order: [['created_at', 'DESC']], //ensures that the latest articles are shown first to the client.                                                        
         include: [  //creates a JOIN to the User table, which is done by adding the proptery include. Notice that the include property is expressed as an array of objects.
@@ -39,7 +40,8 @@ router.get('/:id', (req, res) => {
             'post_url', 
             'title', 
             'created_at',
-            [sequelize.literal('(SELECT COUNT (*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+            [sequelize.literal('(SELECT COUNT (*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count'] //Instead of trying to predict and build a method for every possible use developers have for SQL databases, 
+            //Sequelize provides us with a special method called .lieral() that allows us to run regular SQL queries from within the Sequelize method-based queries. So when we vote on a post, we'll see that post - and its updated vote total - in the response. 
         ],
         include: [
             {
